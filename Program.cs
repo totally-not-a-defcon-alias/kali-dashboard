@@ -23,7 +23,7 @@ class Program
         var toolsSubMenu = new Menu();
         var newPingToolItem = new MenuItem("Ping");
         
-        toolsSubMenu.Appen(newPingToolItem);
+        toolsSubMenu.Append(newPingToolItem);
         toolsMenuItem.Submenu = toolsSubMenu;
         menuBar.Append(toolsMenuItem);
 
@@ -31,27 +31,39 @@ class Program
 
         // Scrollable tool area
         var toolContainerVBox = new Box(Orientation.Vertical, 5);
-        var scroller = new ScrolledWindow();
-
-        scroller.AddWithViewport(toolContainerVBox);
+        var scroller = new ScrolledWindow
+        {
+            toolContainerVBox
+        };
         scroller.SetPolicy(PolicyType.Automatic, PolicyType.Automatic);
+        mainVBox.PackStart(scroller, true, true, 0);
 
         // Hook menu click
-        newPintToolItem.Activated += (_, _) => {
+        newPingToolItem.Activated += (_, _) => {
+            //MessageBox(window, "Ping tool clicked");
             var tool = new PingTool("8.8.8.8");
 
-            toolContainerVBox.PackStart(tool.Container, false, false, 5);
+            //Console.WriteLine($"Container type: {tool.Container?.GetType().Name}");
+
+            toolContainerVBox.PackStart(tool.Container, true, true, 5);
+            tool.Container?.ShowAll();
             toolContainerVBox.ShowAll();
         };
+
+        // var t = new PingTool("8.8.8.8");
+        // t.Container.Show();
+        // t.Container.ShowAll();
+        // toolContainerVBox.PackStart(t.Container, false, false, 5);
+        // toolContainerVBox.ShowAll();
 
         window.ShowAll();        
         Application.Run();
     }
 
-    private static void MessageBox(string msg)
+    private static void MessageBox(Window parent, string msg)
     {
         var dialog = new MessageDialog(
-            parent_window: _window,
+            parent_window: parent,
             DialogFlags.Modal,
             MessageType.Info,
             ButtonsType.Ok,

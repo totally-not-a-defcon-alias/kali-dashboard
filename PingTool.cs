@@ -11,7 +11,7 @@ public class PingTool
     private readonly Box _container;
     public Widget Container => _container;
 
-    public event Action<string>? OutputLine;
+    //public event Action<string>? OutputLine;
 
     public PingTool(string host)
     {
