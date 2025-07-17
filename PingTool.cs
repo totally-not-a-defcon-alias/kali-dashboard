@@ -4,7 +4,7 @@ using Atk;
 using Gtk;
 using Microsoft.VisualBasic;
 
-public class PingTool
+public class PingTool : IDisposable
 {
     private Process? _process;
     private readonly TextView _outputView;
@@ -93,5 +93,19 @@ public class PingTool
             _process.Kill();
             _process.Dispose();
         }
+    }
+
+    public void Dispose()
+    {
+        if (_process != null)
+        {
+            if (!_process.HasExited)
+                _process.Kill();
+
+            _process.Dispose();
+            _process = null;
+        }
+
+        GC.SuppressFinalize(this);
     }
 }

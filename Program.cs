@@ -40,37 +40,17 @@ class Program
 
         // Hook menu click
         newPingToolItem.Activated += (_, _) => {
-            //MessageBox(window, "Ping tool clicked");
-            var tool = new PingTool("8.8.8.8");
-
-            //Console.WriteLine($"Container type: {tool.Container?.GetType().Name}");
+            var host = DialogHelper.Prompt("New Ping Tool", "Enter host/IP to ping");
+            if (host == null) return;
+            
+            var tool = new PingTool(host);
 
             toolContainerVBox.PackStart(tool.Container, true, true, 5);
             tool.Container?.ShowAll();
             toolContainerVBox.ShowAll();
         };
 
-        // var t = new PingTool("8.8.8.8");
-        // t.Container.Show();
-        // t.Container.ShowAll();
-        // toolContainerVBox.PackStart(t.Container, false, false, 5);
-        // toolContainerVBox.ShowAll();
-
         window.ShowAll();        
         Application.Run();
-    }
-
-    private static void MessageBox(Window parent, string msg)
-    {
-        var dialog = new MessageDialog(
-            parent_window: parent,
-            DialogFlags.Modal,
-            MessageType.Info,
-            ButtonsType.Ok,
-            msg
-        );
-
-        dialog.Run();
-        dialog.Destroy();
     }
 }
