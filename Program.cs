@@ -4,25 +4,47 @@ using Gtk;
 
 class Program
 {
-    private static Window? _window;
+    
 
     static void Main(string[] args)
     {
         Application.Init();
 
-        _window = new Window("Tool Dashboard");
-        _window.SetDefaultSize(600, 400);
-        _window.DeleteEvent += (o, e) => Application.Quit();
+        var window = new Window("Kali Dashboard");
+        window.SetDefaultSize(800, 600);
+        window.DeleteEvent += (_, _) => Application.Quit();
 
-        //var mainBox = new VBox(false, 5);
-        var mainBox = new Box(Orientation.Vertical, 5);
-        var pingTool = new PingTool("8.8.8.8");
+        var mainVBox = new Box(Orientation.Vertical, 0);
+        window.Add(mainVBox);
 
-        mainBox.PackStart(pingTool.Container, true, true, 0);
-
-        _window.Add(mainBox);
-        _window.ShowAll();
+        // Menu Bar
+        var menuBar = new MenuBar();
+        var toolsMenuItem = new MenuItem("Tools");
+        var toolsSubMenu = new Menu();
+        var newPingToolItem = new MenuItem("Ping");
         
+        toolsSubMenu.Appen(newPingToolItem);
+        toolsMenuItem.Submenu = toolsSubMenu;
+        menuBar.Append(toolsMenuItem);
+
+        mainVBox.PackStart(menuBar, false, false, 0);
+
+        // Scrollable tool area
+        var toolContainerVBox = new Box(Orientation.Vertical, 5);
+        var scroller = new ScrolledWindow();
+
+        scroller.AddWithViewport(toolContainerVBox);
+        scroller.SetPolicy(PolicyType.Automatic, PolicyType.Automatic);
+
+        // Hook menu click
+        newPintToolItem.Activated += (_, _) => {
+            var tool = new PingTool("8.8.8.8");
+
+            toolContainerVBox.PackStart(tool.Container, false, false, 5);
+            toolContainerVBox.ShowAll();
+        };
+
+        window.ShowAll();        
         Application.Run();
     }
 
