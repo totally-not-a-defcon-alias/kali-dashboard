@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.NetworkInformation;
 using Gtk;
+using KaliDashboard;
 
 class Program
 {
@@ -45,6 +46,11 @@ class Program
             
             var tool = new PingTool(host);
 
+            tool.CloseRequested += t =>
+            {
+                toolContainerVBox.Remove(t.Container);
+                t.Dispose();
+            };
             toolContainerVBox.PackStart(tool.Container, true, true, 5);
             tool.Container?.ShowAll();
             toolContainerVBox.ShowAll();
