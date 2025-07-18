@@ -9,7 +9,7 @@ namespace KaliDashboard
         private Process? _process;
         private string? _host;
 
-        public override int PREFERRED_HEIGHT => 125;
+        public override int PREFERRED_HEIGHT => 200;
         
         public PingTool(string host) : base($"Ping: {host}")
         {
