@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.Marshalling;
+using Cairo;
 using Gtk;
 
 namespace KaliDashboard
@@ -8,8 +11,15 @@ namespace KaliDashboard
         private readonly Button _closeButton;
         private readonly Label _titleLabel;
 
+        public abstract int PREFERRED_HEIGHT { get; }
+
         public Widget Container => _outerBox;
 
+        public static implicit operator Widget?(ToolPanel _this)
+        {
+            return _this?.Container;
+        }
+        
         protected ToolPanel(string title)
         {
             //_outerBox = new VBox(false, 2);
@@ -31,6 +41,7 @@ namespace KaliDashboard
         }
 
         protected abstract Widget BuildBody();
+        public virtual void Stop() {/*nop*/}
 
         public event Action<ToolPanel>? CloseRequested;
 

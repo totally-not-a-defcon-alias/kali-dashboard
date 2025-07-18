@@ -7,14 +7,20 @@ namespace KaliDashboard
     {
         private TextView? _outputView;
         private Process? _process;
+        private string? _host;
 
+        public override int PREFERRED_HEIGHT => 125;
+        
         public PingTool(string host) : base($"Ping: {host}")
         {
+            Logger.Log("Creating Ping tool...");
+            _host = host;
             Start(host);
         }
 
         protected override Widget BuildBody()
         {
+            Logger.Log("Building Ping Tool body...");
             _outputView = new TextView
             {
                 Editable = false
@@ -27,6 +33,8 @@ namespace KaliDashboard
 
         private void Start(string host)
         {
+            Logger.Log("Starting Ping Tool...");
+
             //...??
             Stop();
 
@@ -74,10 +82,13 @@ namespace KaliDashboard
             });
         }
 
-        public void Stop()
+        public override void Stop()
         {
+            Logger.Log("Overriden stop called...");
+
             if (_process != null && !_process.HasExited)
             {
+                Logger.Log("Stopping Ping Tool...");
                 _process.Kill();
                 _process.Dispose();
             }
@@ -85,6 +96,7 @@ namespace KaliDashboard
 
         public override void Dispose()
         {
+            Logger.Log($"Disposing Ping tool for {_host}");
             if (_process != null)
             {
                 if (_process.HasExited)
@@ -94,6 +106,7 @@ namespace KaliDashboard
                 _process = null;
             }
 
+            // base.Dispose() calls GC.SuppressFinalize(this)
             base.Dispose();
         }
     }
