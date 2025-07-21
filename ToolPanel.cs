@@ -22,9 +22,7 @@ namespace KaliDashboard
         
         protected ToolPanel(string title)
         {
-            //_outerBox = new VBox(false, 2);
             _outerBox = new Box(Orientation.Vertical, 2);
-            //var headerBox = new HBox(false, 5);
             var headerBox = new Box(Orientation.Horizontal, 5);
 
             _titleLabel = new Label(title);

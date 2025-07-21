@@ -5,11 +5,14 @@ public static class DialogHelper
     public static string? Prompt(string title, string prompt)
     {
         var dialog = new Dialog(title, null, DialogFlags.Modal);
-        dialog.AddButton("Cancel", ResponseType.Cancel);
-        dialog.AddButton("OK", ResponseType.Ok);
+        var btnCancel = dialog.AddButton("Cancel", ResponseType.Cancel);
+        var btnOk = dialog.AddButton("OK", ResponseType.Ok);
 
         var label = new Label(prompt);
-        var entry = new Entry();
+        var entry = new Entry
+        {
+            ActivatesDefault = true
+        };
         var content = dialog.ContentArea;
         content.Spacing = 10;
         content.BorderWidth = 10;
@@ -19,6 +22,8 @@ public static class DialogHelper
         dialog.ShowAll();
 
         string? result = null;
+        dialog.DefaultResponse = ResponseType.Ok;
+         
         if (dialog.Run() == (int)ResponseType.Ok && !string.IsNullOrWhiteSpace(entry.Text))
         {
             result = entry.Text.Trim();

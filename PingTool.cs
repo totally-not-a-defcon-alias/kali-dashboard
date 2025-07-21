@@ -26,8 +26,10 @@ namespace KaliDashboard
                 Editable = false
             };
 
-            var scroller = new ScrolledWindow();
-            scroller.Add(_outputView);
+            var scroller = new ScrolledWindow
+            {
+                _outputView
+            };
             return scroller;
         }
 
