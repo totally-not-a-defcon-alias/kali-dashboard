@@ -11,6 +11,8 @@ namespace KaliDashboard
         private readonly Button _closeButton;
         private readonly Label _titleLabel;
 
+        protected bool _running = false;
+
         public abstract int PREFERRED_HEIGHT { get; }
 
         public Widget Container => _outerBox;
@@ -39,12 +41,13 @@ namespace KaliDashboard
         }
 
         protected abstract Widget BuildBody();
-        public virtual void Stop() {/*nop*/}
+        public abstract void Stop();
 
         public event Action<ToolPanel>? CloseRequested;
 
         private void OnCloseRequested()
         {
+            Stop();
             CloseRequested?.Invoke(this);
         }
 

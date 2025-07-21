@@ -7,7 +7,7 @@ namespace KaliDashboard
     {
         private TextView? _outputView;
         private Process? _process;
-        private string? _host;
+        private readonly string? _host;
 
         public override int PREFERRED_HEIGHT => 200;
         
@@ -36,9 +36,6 @@ namespace KaliDashboard
         private void Start(string host)
         {
             Logger.Log("Starting Ping Tool...");
-
-            //...??
-            Stop();
 
             _process = new Process()
             {
@@ -70,6 +67,8 @@ namespace KaliDashboard
             _process.Start();
             _process.BeginOutputReadLine();
             _process.BeginErrorReadLine();
+
+            _running = true;
         }
 
         private static void AddText(TextView tv, string text)
@@ -86,29 +85,30 @@ namespace KaliDashboard
 
         public override void Stop()
         {
+            if (!_running) return;
+
             Logger.Log("Overriden stop called...");
 
             if (_process != null && !_process.HasExited)
             {
                 Logger.Log("Stopping Ping Tool...");
                 _process.Kill();
-                _process.Dispose();
             }
+
+            _running = false;
         }
 
         public override void Dispose()
         {
             Logger.Log($"Disposing Ping tool for {_host}");
-            if (_process != null)
-            {
-                if (_process.HasExited)
-                    _process.Kill();
 
-                _process.Dispose();
-                _process = null;
-            }
+            Stop();
+
+            _process?.Dispose();
+            _process = null;
 
             // base.Dispose() calls GC.SuppressFinalize(this)
+            GC.SuppressFinalize(this);
             base.Dispose();
         }
     }
