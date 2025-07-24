@@ -28,7 +28,7 @@ namespace KaliDashboard
             // base horizontal box
             _mainBox = new Box(Orientation.Horizontal, 5);
             vbox.PackStart(_mainBox, true, true, 5);
-            
+
             // This is removed due to dynamic adding/removing of columns as needed
             // initial column - add to hbox
             //_currentColumn = new Box(Orientation.Vertical, 5); // this shouldn't be needed, but the compiler complains if it isn't here.
@@ -66,12 +66,19 @@ namespace KaliDashboard
             toolPanel.Container.HeightRequest = toolPanel.PREFERRED_HEIGHT;
 
             colToUse.PackStart(toolPanel, false, false, 5);
-            
+
             Refresh();
         }
 
         private void ToolClosed(ToolPanel tool)
         {
+            //if (tool == null) Console.WriteLine("tool is null");
+            if (tool.Container.Parent == null) // in case the last column has been removed
+            {
+                tool.Dispose();
+                return;
+            }
+
             // get the tool's column
             if (tool.Container.Parent is not Box col) throw new Exception($"What type is col? {tool.Container.Parent.GetType()}");
 

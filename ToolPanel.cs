@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.Marshalling;
 using Cairo;
@@ -12,6 +13,9 @@ namespace KaliDashboard
         private readonly Label _titleLabel;
 
         protected bool _running = false;
+        protected TextView? _outputView;
+        protected Process? _process;
+        protected abstract string? Host { get; set; }
 
         public abstract int PREFERRED_HEIGHT { get; }
 
@@ -22,14 +26,18 @@ namespace KaliDashboard
             return _this?.Container;
         }
         
-        protected ToolPanel(string title)
+        protected ToolPanel(string title, string host)
         {
+            Host = host;
+            
             _outerBox = new Box(Orientation.Vertical, 2);
             var headerBox = new Box(Orientation.Horizontal, 5);
 
             _titleLabel = new Label(title);
-            _closeButton = new Button("X");
-            _closeButton.WidthRequest = 24;
+            _closeButton = new Button("X")
+            {
+                WidthRequest = 24
+            };
             _closeButton.Clicked += (_, _) => OnCloseRequested();
 
             headerBox.PackStart(_titleLabel, true, true, 0);
@@ -42,6 +50,7 @@ namespace KaliDashboard
 
         protected abstract Widget BuildBody();
         public abstract void Stop();
+        protected abstract void Start();
 
         public event Action<ToolPanel>? CloseRequested;
 

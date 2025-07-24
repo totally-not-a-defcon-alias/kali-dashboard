@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.NetworkInformation;
-using Gtk;
+﻿using Gtk;
 using KaliDashboard;
 
 class Program
@@ -40,31 +38,31 @@ class Program
         var toolsMenuItem = new MenuItem("Tools");
         var toolsSubMenu = new Menu();
         var newPingToolItem = new MenuItem("Ping");
+        var newNmapSweepToolItem = new MenuItem("Nmap (sweep)");
+        var newNmapPokeToolItem = new MenuItem("Nmap (poke)");
 
         toolsSubMenu.Append(newPingToolItem);
+        toolsSubMenu.Append(newNmapSweepToolItem);
+        toolsSubMenu.Append(newNmapPokeToolItem);
+        
         toolsMenuItem.Submenu = toolsSubMenu;
         menuBar.Append(toolsMenuItem);
-
-        // Hook menu click
+        
+        // Hook menu clicks
         newPingToolItem.Activated += (_, _) =>
         {
-            Logger.Log("Creating new Ping tool");
-            var host = DialogHelper.Prompt("New Ping Tool", "Enter host/IP to ping");
-            if (host == null) return;
+            var tool = PingTool.Create();
+            if (tool == null) return;
 
-            var tool = new PingTool(host);
             _layoutManager?.AddTool(tool);
+        };
 
-            // Close the tool
-            tool.CloseRequested += t =>
-            {
-                Logger.Log("Tool requested to close...");
+        newNmapSweepToolItem.Activated += (_, _) =>
+        {
+            var tool = NmapTool.Create(NmapTool.NmapMode.Sweep);
+            if (tool == null) return;
 
-                var parent = t.Container.Parent as Box;
-                parent?.Remove(t.Container);
-
-                t.Dispose();
-            };
+            _layoutManager?.AddTool(tool);
         };
 
         return menuBar;

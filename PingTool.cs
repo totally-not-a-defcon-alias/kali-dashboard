@@ -5,17 +5,16 @@ namespace KaliDashboard
 {
     public class PingTool : ToolPanel
     {
-        private TextView? _outputView;
-        private Process? _process;
-        private readonly string? _host;
+        //protected readonly string? _host;
+        protected override string? Host { get; set; }
 
         public override int PREFERRED_HEIGHT => 200;
-        
-        public PingTool(string host) : base($"Ping: {host}")
+
+        public PingTool(string host) : base($"Ping: {host}", host)
         {
             Logger.Log("Creating Ping tool...");
-            _host = host;
-            Start(host);
+            Host = host;
+            Start();
         }
 
         protected override Widget BuildBody()
@@ -33,7 +32,7 @@ namespace KaliDashboard
             return scroller;
         }
 
-        private void Start(string host)
+        protected override void Start()
         {
             Logger.Log("Starting Ping Tool...");
 
@@ -42,7 +41,7 @@ namespace KaliDashboard
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "ping",
-                    Arguments = $"-O {host}",
+                    Arguments = $"{Host}",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -87,8 +86,6 @@ namespace KaliDashboard
         {
             if (!_running) return;
 
-            Logger.Log("Overriden stop called...");
-
             if (_process != null && !_process.HasExited)
             {
                 Logger.Log("Stopping Ping Tool...");
@@ -100,7 +97,7 @@ namespace KaliDashboard
 
         public override void Dispose()
         {
-            Logger.Log($"Disposing Ping tool for {_host}");
+            Logger.Log($"Disposing Ping tool for {Host}");
 
             Stop();
 
@@ -110,6 +107,28 @@ namespace KaliDashboard
             // base.Dispose() calls GC.SuppressFinalize(this)
             GC.SuppressFinalize(this);
             base.Dispose();
+        }
+
+        public static PingTool? Create()
+        {
+            Logger.Log("Creating new Ping tool");
+            var host = DialogHelper.Prompt("New Ping Tool", "Enter host/IP to ping");
+            if (host == null) return null;
+
+            var tool = new PingTool(host);
+
+            // Close the tool
+            tool.CloseRequested += t =>
+            {
+                Logger.Log("Tool requested to close...");
+
+                var parent = t.Container.Parent as Box;
+                parent?.Remove(t.Container);
+
+                t.Dispose();
+            };
+
+            return tool;
         }
     }
 }
