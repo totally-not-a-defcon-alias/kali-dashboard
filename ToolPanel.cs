@@ -1,16 +1,25 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Text.RegularExpressions;
 using Cairo;
 using Gtk;
 
 namespace KaliDashboard
 {
-    public abstract class ToolPanel : IDisposable
+    public abstract partial class ToolPanel : IDisposable
     {
         private readonly Box _outerBox;
         private readonly Button _closeButton;
         private readonly Label _titleLabel;
+
+
+        protected Regex IP_REGEX { get; } = IpRegex();
+        protected TextTag _ipTag = new("ip-link")
+        {
+            Foreground = "blue",
+            Underline = Pango.Underline.Single
+        };
 
         protected bool _running = false;
         protected TextView? _outputView;
@@ -64,5 +73,8 @@ namespace KaliDashboard
         {
             GC.SuppressFinalize(this);
         }
+
+        [GeneratedRegex(@"\b(?:\d{1,3}\.){3}\d{1,3}\b")]
+        private static partial Regex IpRegex();
     }
 }

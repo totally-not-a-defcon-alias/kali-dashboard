@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Gtk;
+using System.Text.RegularExpressions;
 
 namespace KaliDashboard
 {
@@ -40,7 +41,7 @@ namespace KaliDashboard
             Start();
         }
 
-        public override int PREFERRED_HEIGHT => 200;
+        public override int PREFERRED_HEIGHT => 250;
 
         protected override Widget BuildBody()
         {
@@ -50,13 +51,44 @@ namespace KaliDashboard
             {
                 Editable = false
             };
+            _outputView.Buffer.TagTable.Add(_ipTag);
 
             var scroller = new ScrolledWindow()
             {
                 _outputView
             };
 
+            _outputView.ButtonPressEvent += OnTextViewClicked;
+
             return scroller;
+        }
+
+        private void OnTextViewClicked(object o, ButtonPressEventArgs args)
+        {
+            if (args.Event.Type != Gdk.EventType.ButtonPress || args.Event.Button != 1)
+                return; // abort condition
+
+            var tv = o as TextView ?? throw new Exception("o is not a TextView");
+
+            tv.WindowToBufferCoords(TextWindowType.Text, (int)args.Event.X, (int)args.Event.Y, out int bufX, out int bufY);
+
+            if (!tv.GetIterAtLocation(out TextIter iter, bufX, bufY))
+                return; // abort condition
+
+            var buffer = tv.Buffer;
+            var ipTag = buffer.TagTable.Lookup("ip-link");
+            if (ipTag == null) return; // abort condition
+            if (!iter.HasTag(ipTag)) return; // abort condition
+
+            var ipStart = iter;
+            var ipEnd = iter;
+
+            while (ipStart.BackwardChar() && ipStart.HasTag(ipTag)) { }
+            while (ipEnd.ForwardChar() && ipEnd.HasTag(ipTag)) { }
+
+            string ipText = tv.Buffer.GetText(ipStart, ipEnd, false);
+
+            Console.WriteLine($"clicked IP: {ipText}");
         }
 
         protected override void Start()
@@ -103,12 +135,29 @@ namespace KaliDashboard
             _running = true;
 
         }
-        private static void AddText(TextView tv, string text)
+        private void AddText(TextView tv, string text)
         {
             if (text.StartsWith('#')) return;
 
-            var end = tv.Buffer.EndIter;
-            tv.Buffer.Insert(ref end, $"{text}\n");
+            // var end = tv.Buffer.EndIter;
+            // tv.Buffer.Insert(ref end, $"{text}\n");
+
+            var buffer = tv.Buffer;
+            var startIter = buffer.EndIter;
+            int startOffset = startIter.Offset;
+
+            buffer.Insert(ref startIter, text + "\n");
+
+            var endIter = buffer.EndIter;
+            var insertedStart = buffer.GetIterAtOffset(startOffset);
+            var insertedText = buffer.GetText(insertedStart, endIter, false);
+
+            foreach (Match match in IP_REGEX.Matches(insertedText))
+            {
+                var ipStart = buffer.GetIterAtOffset(startOffset + match.Index);
+                var ipEnd = buffer.GetIterAtOffset(startOffset + match.Index + match.Length);
+                buffer.ApplyTag(buffer.TagTable.Lookup("ip-link"), ipStart, ipEnd);
+            }
 
             GLib.Idle.Add(() =>
             {
