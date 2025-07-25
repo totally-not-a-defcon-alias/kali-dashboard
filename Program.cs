@@ -44,7 +44,7 @@ class Program
         toolsSubMenu.Append(newPingToolItem);
         toolsSubMenu.Append(newNmapSweepToolItem);
         toolsSubMenu.Append(newNmapPokeToolItem);
-        
+
         toolsMenuItem.Submenu = toolsSubMenu;
         menuBar.Append(toolsMenuItem);
         
@@ -60,6 +60,14 @@ class Program
         newNmapSweepToolItem.Activated += (_, _) =>
         {
             var tool = NmapTool.Create(NmapTool.NmapMode.Sweep);
+            if (tool == null) return;
+
+            _layoutManager?.AddTool(tool);
+        };
+
+        newNmapPokeToolItem.Activated += (_, _) =>
+        {
+            var tool = NmapTool.Create(NmapTool.NmapMode.Syn);
             if (tool == null) return;
 
             _layoutManager?.AddTool(tool);

@@ -17,7 +17,7 @@ namespace KaliDashboard
             Ver, // Detect software version(s), combine with Syn or Tcp (service detection)
             OS, // Detect OS 
         }
-        private NmapMode _mode = NmapMode.Sweep;
+        private readonly NmapMode _mode = NmapMode.Sweep;
 
         // private static Dictionary<NmapMode, string> NmapModeMap()
         // => new()
@@ -105,6 +105,7 @@ namespace KaliDashboard
                 Arguments = _mode switch
                 {
                     NmapMode.Sweep => $"nmap -sn {Host} -oG -",
+                    NmapMode.Syn => $"nmap -sS {Host} -oG -",
                     _ => throw new Exception($"Nmap mode not implemented: {_mode}"),
                 }
             };
